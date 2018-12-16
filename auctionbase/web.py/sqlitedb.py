@@ -127,6 +127,14 @@ def addBid(itemID, userID, price):
         t.commit() 
         return True
 
+def getDetails(itemID):
+    item = getItemById(itemID)
+    # TODO 
+    # get categories of item
+    # get bids on item
+    return item # catgory, bids
+
+
 # wrapper method around web.py's db.query method
 # check out http://webpy.org/cookbook/query for more info
 def query(query_string, vars = {}):

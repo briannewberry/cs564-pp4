@@ -165,6 +165,11 @@ class add_bid:
 
         return render_template('add_bid.html', add_result = result)
 
+class getItemDetails:
+    def GET(self):
+        #TODO create detail.html page
+        return None # render_template('detail.html',. . .)
+
 ###########################################################################################
 ##########################DO NOT CHANGE ANYTHING BELOW THIS LINE!##########################
 ###########################################################################################
