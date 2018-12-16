@@ -56,7 +56,8 @@ urls = ('/currtime', 'curr_time',
         '/selecttime', 'select_time',
         '/search', 'search',
         '/add_bid', 'add_bid',
-        '/', 'home'
+        '/', 'home',
+        '/item_detail', 'item_detail'
         # TODO: add additional URLs here
         # first parameter => URL, second parameter => class name
         )
@@ -151,7 +152,7 @@ class search:
         return render_template('search.html', message = update_message, search_result = filtered)
 
 class add_bid:
-    # A simple GET request, to '/addbid'
+    # A simple GET request, to '/add_bid'
     def GET(self):
         return render_template('add_bid.html')
 
@@ -165,10 +166,20 @@ class add_bid:
 
         return render_template('add_bid.html', add_result = result)
 
-class getItemDetails:
+class item_detail:
+    # A simple GET request, to '/item_detail'
     def GET(self):
-        #TODO create detail.html page
-        return None # render_template('detail.html',. . .)
+        return render_template('item_detail.html', itemDetail = False)
+
+    def POST(self):
+        post_params = web.input()
+        itemID = post_params['itemID']
+        itemInfo = sqlitedb.getItemById(itemID)
+        categories = sqlitedb.getItemCategories(itemID)
+        bids = sqlitedb.getItemBids(itemID)
+        winner = sqlitedb.getWinner(itemID)
+
+        return render_template('item_detail.html', itemID = itemID, itemInfo = itemInfo, Categories = categories, Bids = bids, Winner = winner) 
 
 ###########################################################################################
 ##########################DO NOT CHANGE ANYTHING BELOW THIS LINE!##########################
