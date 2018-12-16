@@ -44,45 +44,88 @@ def getTime():
 # a given ID), this will throw an Exception!
 
 def updateTime(time):
-    db.update('CurrentTime', where = "1 == 1", Time = time)
-    return
+    t = transaction()
+    try:
+        db.update('CurrentTime', where = "1 == 1", Time = time)
+    except Exception as e:
+        t.rollback()
+        print("Caught exception ", e.message)
+        return False
+    else:
+        t.commit()
+        return True
+
 
 def getItemById(item_id):
-    # TODO: rewrite this method to catch the Exception in case `result' is empty
     query_string = 'select * from Items where item_ID = $itemID'
-    result = query(query_string, {'itemID': item_id})
+    try:
+        result = query(query_string, {'itemID': item_id})
+    except Exception as e:
+        return None
     return result[0]
 
-def getSearchItems(item_ID, user_ID, minPrice, maxPrice, status):
-    query_string = 'select * from Items'
+def getSearchItems(item_ID, user_ID, category, minPrice, maxPrice, description, status):
+    query_string = 'select DISTINCT i.ItemID, i.Seller_UserID, i.Currently, i.Buy_Price, i.Description, i.Started, i.Ends from Items i join Categories c on i.ItemID = c.ItemID'
     constraint = [];
     inputs = {};
     if (item_ID != ''):
-        constraint.append('ItemID = $itemID')
+        constraint.append('i.ItemID = $itemID')
         inputs['itemID'] = item_ID
 
     if (user_ID != ''):
-        constraint.append('Seller_UserID = $userID')
+        constraint.append('i.Seller_UserID = $userID')
         inputs['userID'] = user_ID
 
+    if (category != ''):
+        constraint.append('c.category = $category')
+        inputs['category'] = category
+
     if (minPrice != ''):
-        constraint.append('Currently >= $minPrice')
+        constraint.append('i.Currently >= $minPrice')
         inputs['minPrice'] = minPrice
 
     if (maxPrice != ''):
-        constraint.append('Currently <= $maxPrice')
+        constraint.append('i.Currently <= $maxPrice')
         inputs['maxPrice'] = maxPrice
+
+    if (description != ''):
+        description = '%' + description + '%'
+        constraint.append('i.description like $description')
+        inputs['description'] = description
 
     first = True
     for x in constraint:
         if first:
-            query_string =query_string + ' where ' + x
+            query_string = query_string + ' where ' + x
             first = False
         else:
             query_string = query_string + " AND " + x
 
-    result = query(query_string, inputs);
-    return result;
+    t= transaction()
+    try:
+        result = query(query_string, inputs);
+    except Exception as e:
+        t.rollback()
+        print str(e)
+        return None
+    else:
+        t.commit()
+        return result;
+
+def addBid(itemID, userID, price):
+    current_time = getTime()
+    query_string = 'insert into Bids values ($ItemID, $UserID, $Price, $current_time)'
+
+    t = transaction()
+    try:
+        result = db.query(query_string, {'ItemID': itemID, 'UserID': userID, 'Price': price, 'current_time': current_time})
+    except Exception as e:
+        t.rollback()
+        print(e.message)
+        return False
+    else:
+        t.commit() 
+        return True
 
 # wrapper method around web.py's db.query method
 # check out http://webpy.org/cookbook/query for more info

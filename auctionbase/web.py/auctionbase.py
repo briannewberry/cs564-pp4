@@ -99,7 +99,8 @@ class select_time:
         selected_time = '%s-%s-%s %s:%s:%s' % (yyyy, MM, dd, HH, mm, ss)
         update_message = '(Hello, %s. Previously selected time was: %s.)' % (enter_name, selected_time)
         # TODO: save the selected time as the current time in the database
-        sqlitedb.updateTime(selected_time)
+        if sqlitedb.updateTime(selected_time) == False:
+            return render_template('select_time.html', message = "Could not update time")
         # Here, we assign `update_message' to `message', which means
         # we'll refer to it in our template as `message'
         return render_template('select_time.html', message = update_message)
@@ -113,32 +114,35 @@ class search:
         post_params = web.input()
         itemID = post_params['itemID']
         userID = post_params['userID']
-        #Category = post_params['Category']
+        Category = post_params['Category']
         minPrice = post_params['minPrice']
         maxPrice = post_params['maxPrice']
+        Description = post_params['Description']
         status = post_params['status']
 
-        update_message = 'Complete'
-        result = sqlitedb.getSearchItems(itemID, userID, minPrice, maxPrice, status);
+        if itemID or userID or Category or minPrice or maxPrice or Description:
+            update_message = 'Complete'
+            result = sqlitedb.getSearchItems(itemID, userID, Category, minPrice, maxPrice, Description, status);
+            timeNow = string_to_time(sqlitedb.getTime())
 
-        filtered = []
-
-        timeNow = string_to_time(sqlitedb.getTime())
-
-        if (status == 'open'):
-            for x in result:
-                if (string_to_time(x['Started']) >= timeNow and string_to_time(x['Ends']) < timeNow):
-                    filtered.append(x);
-        elif (status == 'close'):
-            for x in result:
-                if (string_to_time(x['Ends']) < timeNow):
-                    filtered.append(x);
-        elif (status == 'notStarted'):
-            for x in result:
-                if (string_to_time(x['Started']) > timeNow):
-                    filtered.append(x);
+            if (status == 'open'):
+                for x in result:
+                    if (string_to_time(x['Started']) >= timeNow and string_to_time(x['Ends']) < timeNow):
+                        filtered.append(x);
+            elif (status == 'close'):
+                for x in result:
+                    if (string_to_time(x['Ends']) < timeNow):
+                        filtered.append(x);
+            elif (status == 'notStarted'):
+                for x in result:
+                    if (string_to_time(x['Started']) > timeNow):
+                        filtered.append(x);
+            else:
+                filtered = result;       
         else:
-            filtered = result;
+            filtered = []
+            update_message = 'No inputs'
+            
 
         #elseif(status == 'close'):
         #
