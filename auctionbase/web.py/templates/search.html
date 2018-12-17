@@ -51,6 +51,7 @@
 			<span>{{ result[key]|e }}</span>
 		</div>
   	{% endfor %}
+  	<a href={{"./item_detail?id=" ~ result['ItemID'] }}><input type="submit" value="View Details" class="btn btn-primary" name="itemButton" /></a>
   	<div>--------</div>
 {% endfor %}
 {% else %}

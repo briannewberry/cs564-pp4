@@ -14,6 +14,9 @@ from datetime import datetime
 ##########################DO NOT CHANGE ANYTHING ABOVE THIS LINE!##########################
 ###########################################################################################
 
+ # @group Brian Newberry, Travis Johnson, Teryl Schmidt
+ # @id 9073555451, 9072937378, 9072604920
+
 ######################BEGIN HELPER METHODS######################
 
 # helper method to convert times from database (which will return a string)
@@ -99,7 +102,6 @@ class select_time:
 
         selected_time = '%s-%s-%s %s:%s:%s' % (yyyy, MM, dd, HH, mm, ss)
         update_message = '(Hello, %s. Previously selected time was: %s.)' % (enter_name, selected_time)
-        # TODO: save the selected time as the current time in the database
         if sqlitedb.updateTime(selected_time) == False:
             return render_template('select_time.html', message = "Could not update time")
         # Here, we assign `update_message' to `message', which means
@@ -143,11 +145,6 @@ class search:
         else:
             filtered = []
             update_message = 'No inputs'
-            
-
-        #elseif(status == 'close'):
-        #
-        #elseif(status == 'notStarted'):
 
         return render_template('search.html', message = update_message, search_result = filtered)
 
@@ -167,13 +164,8 @@ class add_bid:
         return render_template('add_bid.html', add_result = result)
 
 class item_detail:
-    # A simple GET request, to '/item_detail'
     def GET(self):
-        return render_template('item_detail.html', itemDetail = False)
-
-    def POST(self):
-        post_params = web.input()
-        itemID = post_params['itemID']
+        itemID = web.input().id
         itemInfo = sqlitedb.getItemById(itemID)
         categories = sqlitedb.getItemCategories(itemID)
         bids = sqlitedb.getItemBids(itemID)

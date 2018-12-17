@@ -1,7 +1,10 @@
 import web
 
+ # @group Brian Newberry, Travis Johnson, Teryl Schmidt
+ # @id 9073555451, 9072937378, 9072604920
+
 db = web.database(dbn='sqlite',
-        db='AuctionBase.db' #TODO: add your SQLite database filename
+        db='AuctionBase.db'
     )
 
 ######################BEGIN HELPER METHODS######################
