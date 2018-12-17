@@ -55,14 +55,35 @@ def updateTime(time):
         t.commit()
         return True
 
-
 def getItemById(item_id):
-    query_string = 'select * from Items where item_ID = $itemID'
+    query_string = 'select * from Items where ItemID = $itemID'
+    try:
+        result = query(query_string, {'itemID': item_id})
+    except Exception as e:
+        print (e.message)
+        return None
+    return result
+
+def getItemBids(item_id):
+    query_string = 'select * from Bids where ItemID = $itemID order by Time desc'
     try:
         result = query(query_string, {'itemID': item_id})
     except Exception as e:
         return None
-    return result[0]
+    return result
+
+def getItemCategories(item_id):
+    query_string = 'select * from Categories where ItemID = $itemID'
+    try:
+        result = query(query_string, {'itemID': item_id})
+    except Exception as e:
+        return None
+    return result
+
+def getWinner(item_id):
+    query_string = 'select UserID from Bids b, Items i where b.ItemID = $itemID order by Time desc limit 1'
+    result = query(query_string, {'itemID': item_id})
+    return result   
 
 def getSearchItems(item_ID, user_ID, category, minPrice, maxPrice, description, status):
     query_string = 'select DISTINCT i.ItemID, i.Seller_UserID, i.Currently, i.Buy_Price, i.Description, i.Started, i.Ends from Items i join Categories c on i.ItemID = c.ItemID'
@@ -126,14 +147,6 @@ def addBid(itemID, userID, price):
     else:
         t.commit() 
         return True
-
-def getDetails(itemID):
-    item = getItemById(itemID)
-    # TODO 
-    # get categories of item
-    # get bids on item
-    return item # catgory, bids
-
 
 # wrapper method around web.py's db.query method
 # check out http://webpy.org/cookbook/query for more info
